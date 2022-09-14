@@ -1,5 +1,7 @@
 # mysql
 MYSQL Function 
-AddDots
-Ucwords
-Entity Decode
+<ul>
+<li>AddDots</li>
+<li>Ucwords</li>
+<li>Entity Decode</li>
+</ul>
