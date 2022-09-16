@@ -1,4 +1,4 @@
-# mysql
+# Mysql
 MYSQL Function 
 <ul>
 <li>AddDots</li>
