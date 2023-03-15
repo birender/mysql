@@ -1,0 +1,27 @@
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `bal`(IN `USEID` INT, IN `climit` INT, IN `totalPrice` DECIMAL(10,2), IN `ispostpaid` INT)
+    READS SQL DATA
+BEGIN
+DECLARE finished INTEGER DEFAULT 0;
+DECLARE l_bal decimal(10,2);
+DECLARE l_final decimal(10,2);
+
+DEClARE curName CURSOR FOR SELECT balance from user_balance where user_id = USEID;
+ -- DECLARE CONTINUE HANDLER FOR NOT FOUND SET finished = 1;
+ OPEN curName;
+ getBal: LOOP
+ FETCH curName INTO l_bal;
+ IF ispostpaid = 1 
+ THEN
+  UPDATE user_balance set balance = (l_bal+climit) - totalPrice WHERE user_id = USEID; 
+ SELECT ((l_bal+climit) - totalPrice) as BALANCE;
+LEAVE getBal;
+ ELSE
+   SELECT IF(l_bal - totalPrice <0,'Not Enough Credits', l_bal - totalPrice) as BALANCE;
+   
+   LEAVE getBal;
+  END IF;
+  END LOOP getBal;
+  CLOSE curName; 
+  END$$
+DELIMITER ;
