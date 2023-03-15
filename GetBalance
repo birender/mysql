@@ -1,5 +1,5 @@
 DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `bal`(IN `USEID` INT, IN `climit` INT, IN `totalPrice` DECIMAL(10,2), IN `ispostpaid` INT)
+CREATE PROCEDURE `bal`(IN `USEID` INT, IN `climit` INT, IN `totalPrice` DECIMAL(10,2), IN `ispostpaid` INT)
     READS SQL DATA
 BEGIN
 DECLARE finished INTEGER DEFAULT 0;
@@ -13,12 +13,26 @@ DEClARE curName CURSOR FOR SELECT balance from user_balance where user_id = USEI
  FETCH curName INTO l_bal;
  IF ispostpaid = 1 
  THEN
-  UPDATE user_balance set balance = (l_bal+climit) - totalPrice WHERE user_id = USEID; 
- SELECT ((l_bal+climit) - totalPrice) as BALANCE;
-LEAVE getBal;
+ set l_final = (l_bal+climit) - totalPrice;
+ IF l_final > 0 
+ THEN 
+  UPDATE user_balance set balance = l_final WHERE user_id = USEID; 
+    
+ SELECT l_final as BALANCE;
+  ELSE
+  
+ SELECT 'Not Enough Credits' as BALANCE;
+
+ END IF;
+  LEAVE getBal;
  ELSE
-   SELECT IF(l_bal - totalPrice <0,'Not Enough Credits', l_bal - totalPrice) as BALANCE;
-   
+  set l_final = l_bal - totalPrice;
+   IF l_final > 0 THEN
+   UPDATE user_balance set balance = l_final WHERE user_id = USEID; 
+    SELECT l_final as BALANCE;
+   ELSE
+   SELECT 'Not Enough Credits' as BALANCE;
+   END IF;
    LEAVE getBal;
   END IF;
   END LOOP getBal;
